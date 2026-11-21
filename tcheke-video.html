@@ -1,0 +1,17 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TEST VIDEO</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>body{background:#000;color:#fff;font-family:Arial;padding:15px}video{width:100%;max-height:300px;background:#222;margin:10px 0}.box{background:#1a1a1a;padding:12px;border-radius:12px;margin:10px 0;word-break:break-all;font-size:12px}.ok{color:#00ff88}.err{color:#ff5555}</style></head><body>
+<h2>TEST VIDEO 🧪</h2><div id="out"><p>Ap chèche videyo yo...</p></div>
+<script>
+const sb=supabase.createClient("https://xvgjijnggncarummnkrb.supabase.co","sb_publishable_71YHalZ_rCO8N0ByZcIuzg_fug-NG5x");
+async function test(){
+ var o=document.getElementById('out');
+ try{
+  var r=await sb.from('videos').select('*').order('created_at',{ascending:false}).limit(10);
+  if(r.error){o.innerHTML='<p class="err">❌ ERÈ BAZ LA: '+r.error.message+'</p>';return}
+  if(!r.data||!r.data.length){o.innerHTML='<p>⚠️ 0 videyo nan baz la! Videyo a pa t sove!</p>';return}
+  o.innerHTML='<p class="ok">✅ Videyo jwenn: '+r.data.length+'</p>'+r.data.map((v,i)=>{
+   return '<div class="box"><b>'+(i+1)+'. '+(v.title||'San tit')+'</b><br>👤 '+(v.username||v.user_email||'?')+'<br>📅 '+(v.created_at||'?')+'<br>🔗 URL: '+(v.video_url?'<span class="ok">GEN URL</span> - '+v.video_url.substring(0,100)+'...':'<span class="err">❌ PA GEN URL! VID!</span>')+'<br>❤️ Likes: '+(v.likes_count||0)+'</div><video src="'+(v.video_url||'')+'" controls preload="metadata"></video><hr>'
+  }).join('');
+ }catch(e){o.innerHTML='<p class="err">❌ ERÈ JS: '+e.message+'</p>'}
+}
+test();
+</script></body></html>

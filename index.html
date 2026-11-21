@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>DA.R LIVE 🇭🇹</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Arial;overflow:hidden}
+.header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent)}
+.logo{font-size:22px;font-weight:900}.logo span{color:#fe2c55}
+.header button{background:rgba(0,0,0,.5);border:1px solid #333;color:#fff;padding:8px 12px;border-radius:20px;font-size:18px}
+.feed{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
+.feed::-webkit-scrollbar{display:none}
+.video-card{height:100vh;width:100%;scroll-snap-align:start;position:relative;background:#000;flex-shrink:0}
+.video-card video,.video-card iframe{width:100%;height:100%;object-fit:cover;background:#000;border:none;display:block}
+.overlay{position:absolute;bottom:0;left:0;right:0;padding:80px 14px 20px 14px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);pointer-events:none}
+.overlay *{pointer-events:auto}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(45deg,#fe2c55,#25f4ee);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;border:2px solid #fff}
+.title{font-size:14px;line-height:1.4;margin-top:8px}
+.side-actions{position:absolute;right:10px;bottom:110px;display:flex;flex-direction:column;gap:16px;align-items:center;z-index:10}
+.side-actions div{text-align:center;cursor:pointer}
+.side-actions b{font-size:28px;display:block}
+.side-actions span{font-size:11px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#000;border-top:1px solid #222;display:flex;justify-content:space-around;padding:10px 0;z-index:100}
+.bottom-nav div{text-align:center;font-size:11px;color:#888;cursor:pointer}
+.bottom-nav div.active{color:#fff}
+.bottom-nav b{font-size:22px;display:block}
+/* PARAMETRES */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.sheet{background:#111;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:18px;padding-bottom:30px}
+.sheet h3{text-align:center;margin-bottom:12px}
+.opt{display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;padding:14px;border-radius:14px;margin:8px 0;cursor:pointer}
+.opt small{color:#888;display:block;font-weight:400}
+.btn-green{width:100%;padding:14px;background:#25D366;border:none;color:#fff;border-radius:25px;font-weight:800;font-size:15px;margin-top:8px}
+.empty{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;color:#888}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">DA.R <span>LIVE</span> 🇭🇹</div>
+  <div style="display:flex;gap:6px">
+    <button onclick="openSettings()">⚙️</button>
+    <button onclick="location.href='upload.html'">➕</button>
+  </div>
+</div>
+
+<div class="feed" id="feed"></div>
+
+<div class="bottom-nav">
+  <div class="active"><b>🏠</b>Akèy</div>
+  <div onclick="openSettings()"><b>⚙️</b>Paramètres</div>
+  <div onclick="location.href='upload.html'"><b style="font-size:28px;color:#fe2c55">➕</b></div>
+  <div onclick="location.href='upload.html'"><b>👤</b>Profil</div>
+</div>
+
+<!-- PARAMETRES -->
+<div class="modal" id="settingsModal" onclick="if(event.target===this) closeSettings()">
+  <div class="sheet">
+    <h3>⚙️ Paramètres</h3>
+    <div class="opt" onclick="installApp()">
+      <div><b>📲 Telechaje App DA.R LIVE</b><small>Enstale l sou telefòn ou tankou TikTok</small></div>
+      <span>›</span>
+    </div>
+    <p id="installMsg" style="text-align:center;font-size:12px;color:#25D366"></p>
+    <div class="opt" onclick="location.href='upload.html'"><div><b>➕ Lage Videyo</b><small>Selman Admin</small></div><span>›</span></div>
+    <div class="opt" onclick="location.reload()"><div><b>🔄 Rafrechi Paj La</b><small>Chaje nouvo videyo yo</small></div><span>›</span></div>
+    <div class="opt" onclick="location.href='index.html'"><div><b>🏠 Akèy</b><small>Tounen nan videyo yo</small></div><span>›</span></div>
+    <button class="btn-green" onclick="closeSettings()" style="background:#222;margin-top:14px">Fèmen</button>
+  </div>
+</div>
+
+<script>
+var sb = supabase.createClient("https://xvgjijnggncarummnkrb.supabase.co","sb_publishable_71YHalZ_rCO8N0ByZcIuzg_fug-NG5x");
+function openSettings(){ document.getElementById('settingsModal').classList.add('open'); }
+function closeSettings(){ document.getElementById('settingsModal').classList.remove('open'); }
+async function loadVideos(){
+  var r = await sb.from('videos').select('*').order('created_at',{ascending:false}).limit(50);
+  var feed = document.getElementById('feed');
+  if(r.error || !r.data || r.data.length===0){
+    feed.innerHTML = '<div class="empty"><b style="color:#fff;font-size:20px">Pa gen videyo ankò 😔</b><br><br><button onclick="location.href=\'upload.html\'" style="padding:12px 22px;background:#fe2c55;border:none;color:#fff;border-radius:25px;font-weight:800">➕ Lage Premye Videyo a</button></div>';
+    return;
+  }
+  var html='';
+  r.data.forEach(function(v){
+    var isEmbed = v.video_url.includes('youtube.com/embed') || v.video_url.includes('tiktok.com') || v.video_url.includes('facebook.com');
+    var media = isEmbed ? '<iframe src="'+v.video_url+'" allowfullscreen allow="autoplay; encrypted-media"></iframe>' : '<video src="'+v.video_url+'" playsinline loop preload="metadata" onclick="this.paused?this.play():this.pause()"></video>';
+    html += '<div class="video-card">'+media+'<div class="side-actions"><div onclick="this.querySelector(\'b\').innerText=\'❤️\'"><b>🤍</b><span>Like</span></div><div><b>💬</b><span>Kòmantè</span></div><div><b>↗️</b><span>Pataje</span></div></div><div class="overlay"><div class="user-row"><div class="avatar">D</div><div><b>@darlive</b><br><span style="font-size:12px;color:#bbb">DA.R LIVE 🇭🇹</span></div></div><div class="title">'+(v.title||'Videyo DA.R LIVE')+'</div></div></div>';
+  });
+  feed.innerHTML = html;
+  // Auto-play premye videyo a
+  var first = feed.querySelector('video'); if(first) first.play().catch(()=>{});
+  // Auto-play lè w scroll
+  feed.addEventListener('scroll', function(){
+    var videos = feed.querySelectorAll('video');
+    videos.forEach(function(v){ var rect=v.getBoundingClientRect(); if(rect.top>=0 && rect.top<window.innerHeight/2) v.play().catch(()=>{}); else v.pause(); });
+  });
+}
+loadVideos();
+
+// --- PWA INSTALL - NAN PARAMETRES SELMAN ---
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+async function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    let choice = await deferredPrompt.userChoice;
+    if(choice.outcome === 'accepted'){ document.getElementById('installMsg').innerText = '✅ App la ap enstale... Gade ekran akèy ou! 🎉'; }
+    else { document.getElementById('installMsg').innerText = 'Ou anile enstalasyon an'; }
+    deferredPrompt = null;
+  } else {
+    if(/iPhone|iPad|iPod/.test(navigator.userAgent)){
+      alert('Sou iPhone:\n\n1. Peze bouton Share ⬆️ anba a\n2. Peze "Add to Home Screen"\n3. Peze "Add"');
+    } else if(window.matchMedia('(display-mode: standalone)').matches){
+      document.getElementById('installMsg').innerText = '✅ App la DEJA enstale! Ou ap itilize l kounya 🎉';
+    } else {
+      document.getElementById('installMsg').innerText = 'Sou Chrome: Peze 3 pwen ⋮ anwo a > Install App / Add to Home screen';
+    }
+  }
+}
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
+</script>
+</body>
+  </html>

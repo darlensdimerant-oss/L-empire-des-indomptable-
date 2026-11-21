@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lage Videyo - DA.R LIVE</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#fff;font-family:Arial;padding:14px}.logo{font-size:24px;font-weight:900;text-align:center}.logo span{color:#fe2c55}.stats{display:flex;gap:8px;margin:12px 0}.stat{flex:1;background:#111;border:1px solid #222;border-radius:14px;padding:10px;text-align:center}.stat b{font-size:18px;color:#fe2c55;display:block}.stat p{font-size:11px;color:#888}.tabs{display:flex;gap:8px;margin-bottom:12px}.tabs button{flex:1;padding:12px;background:#222;border:none;color:#fff;border-radius:25px;font-weight:800}.tabs button.active{background:#fe2c55}.box{background:#111;border:1px solid #333;border-radius:20px;padding:16px}input,select{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:none;background:#222;color:#fff;outline:none}button.main{width:100%;padding:14px;background:#fe2c55;border:none;color:#fff;border-radius:25px;font-weight:800;margin-top:10px;cursor:pointer}.item{background:#1a1a1a;border-radius:14px;padding:12px;margin-top:10px;display:flex;gap:10px;align-items:center}.item video,.item img{width:70px;height:90px;object-fit:cover;border-radius:10px;background:#000}.bar{height:8px;background:#333;border-radius:20px;overflow:hidden;margin-top:6px}.fill{height:100%;background:#25D366;width:0%;transition:width .3s}.link-row{display:flex;gap:8px;align-items:center;background:#1a1a1a;padding:10px;border-radius:12px;margin-top:8px}.link-row b{font-size:13px}.chip{font-size:10px;padding:3px 7px;border-radius:20px;background:#fe2c55}.back{color:#fff;text-decoration:none;font-size:14px}.hint{font-size:12px;color:#888;text-align:center;margin-top:6px;line-height:1.5}</style></head><body>
+<a class="back" href="index.html">← Tounen</a>
+<div class="logo">DA.R <span>LIVE</span> 🇭🇹</div>
+
+<!-- INFO APP LA -->
+<div class="stats">
+<div class="stat"><b id="sV">...</b><p>🎬 Videyo</p></div>
+<div class="stat"><b id="sU">...</b><p>👥 Itilizatè</p></div>
+<div class="stat"><b id="sC">...</b><p>💬 Kòmantè</p></div>
+<div class="stat"><b id="sL">...</b><p>❤️ Like</p></div>
+</div>
+
+<div class="tabs">
+<button id="tFile" class="active" onclick="switchTab('file')">📁 Fichye (5)</button>
+<button id="tLink" onclick="switchTab('link')">🔗 Lyen TikTok / YouTube</button>
+</div>
+
+<!-- ONGLET FICHYE -->
+<div id="boxFile" class="box">
+<h3 style="text-align:center">Lage Jiska 5 Videyo 🎬</h3>
+<p class="hint">Chwazi 5 videyo - Yo monte ansanm, youn pa rete tann lòt</p>
+<input type="text" id="myName" placeholder="Non ou - Ex: @darlive (opsyonèl)">
+<input type="file" id="files" accept="video/*" multiple>
+<div id="list"></div>
+<button class="main" onclick="uploadAll()" id="btnFile">📤 LAGE TOUT YO AN MENM TAN</button>
+<p id="msgFile" style="text-align:center;margin-top:10px;color:#ffcc00;font-size:13px"></p>
+</div>
+
+<!-- ONGLET LYEN -->
+<div id="boxLink" class="box" style="display:none">
+<h3 style="text-align:center">Kole Lyen Videyo 🔗</h3>
+<p class="hint">TikTok • YouTube • Instagram • Facebook • Lyen dirèk .mp4<br>Lap parèt sou sit la otomatik!</p>
+<select id="platform"><option value="tiktok">🎵 TikTok</option><option value="youtube">▶️ YouTube</option><option value="instagram">📸 Instagram</option><option value="facebook">📘 Facebook</option><option value="direct">🔗 Lyen Dirèk (.mp4)</option></select>
+<input type="text" id="linkTitle" placeholder="Tit videyo a - Ex: Danse Kompa 🔥">
+<input type="text" id="linkUrl" placeholder="Kole lyen an isit... https://www.tiktok.com/...">
+<input type="text" id="linkUser" placeholder="Non ou - Ex: @darlive">
+<button class="main" onclick="addLink()" style="background:#25D366">✅ AJOUTE LYEN SA A SOU SIT LA</button>
+<div id="linkList"></div>
+<p id="msgLink" style="text-align:center;margin-top:10px;color:#25D366;font-size:13px"></p>
+</div>
+
+<button class="main" onclick="location.href='index.html'" style="background:#222;margin-top:12px">👀 Gade Sit La</button>
+
+<script>
+var sb=supabase.createClient("https://xvgjijnggncarummnkrb.supabase.co","sb_publishable_71YHalZ_rCO8N0ByZcIuzg_fug-NG5x");
+var selected=[], links=[];
+
+function switchTab(t){
+document.getElementById('tFile').classList.toggle('active',t==='file');
+document.getElementById('tLink').classList.toggle('active',t==='link');
+document.getElementById('boxFile').style.display=t==='file'?'block':'none';
+document.getElementById('boxLink').style.display=t==='link'?'block':'none';
+}
+
+// --- INFO APP ---
+async function loadStats(){
+var v=await sb.from('videos').select('id',{count:'exact'});
+var c=await sb.from('comments').select('id',{count:'exact'});
+var u=await sb.from('profiles').select('id',{count:'exact'});
+document.getElementById('sV').innerText=v.count||0;
+document.getElementById('sC').innerText=c.count||0;
+document.getElementById('sU').innerText=u.count||0;
+document.getElementById('sL').innerText='🔥';
+}
+loadStats();
+
+// --- FICHYE ---
+document.getElementById('files').addEventListener('change',function(e){
+selected=Array.from(e.target.files).slice(0,5);
+if(e.target.files.length>5) alert('5 videyo max! Mwen pran 5 premye yo.');
+document.getElementById('list').innerHTML=selected.map(function(f,i){
+return '<div class="item"><video src="'+URL.createObjectURL(f)+'" muted></video><div style="flex:1"><b>'+f.name.slice(0,25)+'</b><p style="font-size:12px;color:#888">'+(f.size/1024/1024).toFixed(1)+' MB • <span id="st'+i+'">Ap tann... ⏳</span></p><div class="bar"><div class="fill" id="bar'+i+'"></div></div></div></div>'
+}).join('');
+});
+
+async function uploadOne(f,i,username){
+var st=document.getElementById('st'+i), bar=document.getElementById('bar'+i);
+try{
+st.innerText='Ap monte... 🚀'; bar.style.width='20%';
+var name=Date.now()+'_'+i+'_'+f.name.replace(/[^a-zA-Z0-9.]/g,'');
+var up=await sb.storage.from('videos').upload(name,f,{upsert:true});
+if(up.error) throw new Error(up.error.message+' | Ale nan Supabase > Storage > videos > Make Public');
+bar.style.width='60%'; st.innerText='Ap anrejistre...';
+var url=sb.storage.from('videos').getPublicUrl(name).data.publicUrl;
+var ins=await sb.from('videos').insert({title:f.name.replace(/\.[^/.]+$/,''),video_url:url,username:username||'darlive',source:'upload'});
+if(ins.error) throw new Error(ins.error.message);
+bar.style.width='100%'; bar.style.background='#25D366'; st.innerText='✅ FINI!';
+return true;
+}catch(err){ st.innerText='❌ '+err.message; bar.style.background='red'; document.getElementById('msgFile').innerText='ERÈ: '+err.message; return false; }
+}
+
+async function uploadAll(){
+if(!selected.length){alert('Chwazi videyo yo anvan!');return}
+var user=document.getElementById('myName').value.trim()||'darlive';
+document.getElementById('btnFile').innerText='Ap lage... ⏳ Pa fèmen paj la'; document.getElementById('btnFile').disabled=true;
+document.getElementById('msgFile').innerText='';
+// 5 yo ap monte AN MENM TAN
+var res=await Promise.all(selected.map(function(f,i){return uploadOne(f,i,user)}));
+var ok=res.filter(Boolean).length;
+document.getElementById('msgFile').innerText=ok+' / '+selected.length+' videyo lage! ✅';
+document.getElementById('btnFile').innerText='✅ FINI - Lage Lòt Ankò'; document.getElementById('btnFile').disabled=false;
+if(ok>0) setTimeout(function(){location.href='index.html'},1800);
+}
+
+// --- LYEN TIKTOK / YOUTUBE ---
+function getEmbed(url,plat){
+if(plat==='youtube'){
+var id=''; var m=url.match(/(?:v=|youtu\.be

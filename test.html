@@ -1,0 +1,22 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>TEST LOGIN</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body style="background:#000;color:#fff;font-family:Arial;padding:20px;text-align:center">
+<h2>TEST LOGIN DA.R LIVE</h2>
+<input id="e" placeholder="Email" style="padding:12px;width:90%"><br><br>
+<input id="p" type="password" placeholder="Mot de passe" style="padding:12px;width:90%"><br><br>
+<button onclick="testLogin()" style="background:#fe2c55;color:#fff;padding:15px 30px;border:none;border-radius:20px;font-weight:bold">TESTER</button>
+<p id="res" style="margin-top:20px;color:yellow;word-break:break-all"></p>
+<script>
+const sb=supabase.createClient("https://xvgjijnggncarummnkrb.supabase.co","sb_publishable_71YHalZ_rCO8N0ByZcIuzg_fug-NG5x");
+async function testLogin(){
+  document.getElementById('res').innerText="Ap eseye konekte... ⏳";
+  try{
+    const email=document.getElementById('e').value.trim();
+    const pass=document.getElementById('p').value;
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error){ document.getElementById('res').innerText="ERÈ: "+error.message; alert("ERÈ: "+error.message); return; }
+    document.getElementById('res').innerText="LOGIN MACHE! User ID: "+data.user.id;
+    const {data:prof,error:err2}=await sb.from('profiles').select('*').eq('id',data.user.id).single();
+    if(err2){ document.getElementById('res').innerText+="\nERÈ PROFILE: "+err2.message; }
+    else{ document.getElementById('res').innerText+="\nPROFILE: "+JSON.stringify(prof); }
+  }catch(e){ document.getElementById('res').innerText="ERÈ GRAVE: "+e.message; alert(e.message); }
+}
+</script></body></html>

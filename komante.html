@@ -1,0 +1,9 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TEST KOMANTÈ</title><style>body{background:#000;color:#fff;font-family:Arial;padding:20px}input{width:65%;padding:15px;border-radius:20px;border:none;background:#222;color:#fff;font-size:16px}button{padding:15px 20px;background:#fe2c55;border:none;color:#fff;border-radius:20px;font-size:18px}.item{background:#1a1a1a;padding:12px;border-radius:12px;margin-top:10px}</style></head><body>
+<h2>TEST KOMANTÈ 🧪</h2><p style="color:#888">Si sa a mache, se cache ki te bloke w!</p>
+<div style="display:flex;gap:8px;margin-top:20px"><input id="txt" placeholder="Ekri yon kòmantè..."><button onclick="send()">➤</button></div>
+<div id="list"></div>
+<script>
+function show(){var a=[];try{a=JSON.parse(localStorage.getItem('test_cm2')||'[]')}catch(e){}document.getElementById('list').innerHTML=a.map(c=>'<div class="item"><b>@'+c.u+'</b><p>'+c.t+'</p></div>').join('')||'<p style="color:#888;margin-top:20px">Pa gen kòmantè ankò</p>'}
+function send(){var i=document.getElementById('txt');var t=i.value.trim();if(!t){alert('Ekri yon bagay!');return}var a=[];try{a=JSON.parse(localStorage.getItem('test_cm2')||'[]')}catch(e){}a.unshift({u:'fan',t:t});localStorage.setItem('test_cm2',JSON.stringify(a));i.value='';show();alert('✅ LI MACHE! Kòmantè a sove!')}
+show();
+</script></body></html>

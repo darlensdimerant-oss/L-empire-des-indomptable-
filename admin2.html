@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DA.R LIVE ADMIN</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#fff;font-family:Arial;padding:15px}.login{max-width:400px;margin:60px auto;padding:25px;background:#111;border:2px solid #fe2c55;border-radius:20px;text-align:center}h1{font-size:26px}h1 span{color:#fe2c55}input,textarea{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:none;background:#222;color:#fff;font-size:15px}button{width:100%;padding:14px;background:#fe2c55;color:#fff;border:none;border-radius:25px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:5px}.dash{display:none}.card{background:#111;padding:18px;border-radius:15px;margin:12px 0;border:1px solid #333}.card h3{color:#fe2c55;margin-bottom:8px}.green{background:#25D366}.gray{background:#333}label{font-size:13px;color:#aaa;text-align:left;display:block;margin-top:10px}#msg{margin-top:10px;color:yellow}</style></head><body>
+<div id="loginBox" class="login"><h1>DA.R <span>LIVE</span> ADMIN</h1><p style="color:#888">CONTROL YOUR PLATFORM 🔒</p><input id="email" value="mdimerant@gmail.com"><input id="pass" type="password" placeholder="Mot de passe"><button onclick="login()">SE CONNECTER 🔑</button><p id="msg"></p></div>
+<div id="dash" class="dash"><h1>👑 Bienvenue, Admin 12!</h1><p style="color:#25D366">✅ Ou konekte kòm SUPER ADMIN</p>
+<div class="card"><h3>🎬 Publier Vidéo - VRE BOUTON</h3><label>Titre vidéo a</label><input id="title" placeholder="Ex: Danse kompa 🔥"><label>Lyen Vidéo a (YouTube / TikTok / lien mp4)</label><input id="vurl" placeholder="Kole lyen videyo a isit la..."><label>OUBYEN chwazi videyo nan telefòn ou</label><input type="file" id="vfile" accept="video/*"><button class="green" onclick="publish()">+ PUBLIER KOUNYE A 🚀</button><p id="pmsg" style="color:yellow;margin-top:8px"></p></div>
+<div class="card"><h3>📊 Statistiques</h3><p id="stats">Ap chaje...</p></div><div class="card"><h3>🎥 Dènye Videyo yo</h3><div id="list">Ap chaje...</div></div><button class="gray" onclick="logout()">DÉCONNECTER</button></div>
+<script>
+const sb=supabase.createClient("https://xvgjijnggncarummnkrb.supabase.co","sb_publishable_71YHalZ_rCO8N0ByZcIuzg_fug-NG5x");
+let myId=null;
+async function login(){document.getElementById('msg').innerText="Ap konekte... ⏳";const email=document.getElementById('email').value.trim(),pass=document.getElementById('pass').value;const {data,error}=await sb.auth.signInWithPassword({email,password:pass});if(error){document.getElementById('msg').innerText="ERÈ: "+error.message;return}myId=data.user.id;document.getElementById('loginBox').style.display='none';document.getElementById('dash').style.display='block';loadStats();}
+async function publish(){
+  const title=document.getElementById('title').value.trim()||'Video DA.R LIVE';
+  let vurl=document.getElementById('vurl').value.trim();
+  const file=document.getElementById('vfile').files[0];
+  document.getElementById('pmsg').innerText="Ap pibliye... ⏳";
+  try{
+    if(file){
+      const name=Date.now()+'_'+file.name.replace(/\s/g,'_');
+      const {error:upErr}=await sb.storage.from('videos').upload(name,file);
+      if(upErr) throw new Error("Storage: "+upErr.message+" - Kreye bucket 'videos' nan Supabase");
+      const {data:pub}=sb.storage.from('videos').getPublicUrl(name);
+      vurl=pub.publicUrl;
+    }
+    if(!vurl){document.getElementById('pmsg').innerText="⚠️ Kole yon lyen OU chwazi yon videyo!";return}
+    const {error}=await sb.from('videos').insert([{user_id:myId,title:title,video_url:vurl}]);
+    if(error) throw error;
+    document.getElementById('pmsg').innerText="✅ PUBLIYE! Ale sou sit la pou w wè l! 🎉";
+    document.getElementById('title').value='';document.getElementById('vurl').value='';
+    loadStats();
+  }catch(e){document.getElementById('pmsg').innerText="ERÈ: "+e.message}
+}
+async function loadStats(){const {count}=await sb.from('profiles').select('*',{count:'exact',head:true});const {count:c2}=await sb.from('videos').select('*',{count:'exact',head:true});document.getElementById('stats').innerText="Utilisateurs: "+count+" | Vidéos: "+c2;const {data}=await sb.from('videos').select('title,created_at').order('created_at',{ascending:false}).limit(5);document.getElementById('list').innerHTML=data&&data.length?data.map(v=>"<p>🎬 "+(v.title||'Sans titre')+"</p>").join(''):"Pa gen videyo ankò";}
+async function logout(){await sb.auth.signOut();location.reload();}
+</script></body></html>

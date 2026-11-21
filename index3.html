@@ -1,0 +1,19 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DA.R LIVE - TEST 3</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>body{background:#000;color:#fff;font-family:Arial;margin:0}.top{padding:12px;font-size:21px;font-weight:900;position:fixed;top:0;left:0;right:0;background:#000;z-index:100}.top span{color:#fe2c55}.video{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 10px 20px}video{width:100%;max-height:60vh;background:#222}h3{margin:10px 0 5px}p{color:#ccc}.btn{background:#fe2c55;color:#fff;border:none;padding:10px 20px;border-radius:20px;font-weight:800;margin:5px}</style></head><body>
+<div class="top">DA.R <span>LIVE</span> 🇭🇹 - TEST 3</div>
+<div id="feed"><div class="video"><p id="status">1. Ap kòmanse... ⏳</p></div></div>
+<script>
+function setStat(t){document.getElementById('status').innerHTML=t}
+try{
+ setStat('2. Supabase ap chaje...');
+ const sb=supabase.createClient("https://xvgjijnggncarummnkrb.supabase.co","sb_publishable_71YHalZ_rCO8N0ByZcIuzg_fug-NG5x");
+ setStat('3. Ap mande videyo yo nan baz la...');
+ sb.from('videos').select('*').order('created_at',{ascending:false}).limit(20).then(function(res){
+   if(res.error){setStat('❌ ERÈ BAZ LA: '+res.error.message);return}
+   if(!res.data||!res.data.length){setStat('⚠️ 0 videyo!');return}
+   setStat('✅ Jwenn '+res.data.length+' videyo! Ap montre yo...');
+   document.getElementById('feed').innerHTML=res.data.map(function(v){
+     return '<div class="video"><video src="'+v.video_url+'" controls playsinline></video><h3>@'+(v.username||'darlive')+'</h3><p>'+(v.title||'')+'</p><button class="btn" onclick="alert(\'Kòmantè mache!\')">💬 Kòmantè</button></div>'
+   }).join('');
+ }).catch(function(e){setStat('❌ ERÈ PROMISE: '+e.message)});
+}catch(e){setStat('❌ ERÈ JS: '+e.message)}
+</script></body></html>
